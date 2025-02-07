@@ -57,38 +57,38 @@ export default function ForgotPassword() {
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Navbar */}
-      <nav className="bg-white shadow-md">
+      <nav className="bg-black shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             {/* Logo */}
             <div className="flex items-center">
               <div to="/" className="flex-shrink-0 flex items-center">
-                <span className="text-2xl font-bold text-black">Voice Of Customer</span>
+                <span className="text-2xl font-bold text-white">Voice Of Customer</span>
               </div>
             </div>
 
             {/* Desktop Navigation */}
             <div className="hidden sm:flex sm:items-center sm:space-x-4">
-              <Link to="/Home" className="text-gray-700 hover:text-black px-3 py-2 rounded-md text-sm font-medium">
+              <Link to="/Home" className="text-white hover:text-gray-200 px-3 py-2 rounded-md text-sm font-medium">
                 Home
               </Link>
               {!isAuthenticated ? (
                 <>
-                  <Link to="/login" className="text-gray-700 hover:text-black px-3 py-2 rounded-md text-sm font-medium">
+                  <Link to="/login" className="text-white hover:text-gray-200 px-3 py-2 rounded-md text-sm font-medium">
                     Login
                   </Link>
-                  <Link to="/signup" className="text-gray-700 hover:text-black px-3 py-2 rounded-md text-sm font-medium">
+                  <Link to="/signup" className="text-white hover:text-gray-200 px-3 py-2 rounded-md text-sm font-medium">
                     Sign Up
                   </Link>
                 </>
               ) : (
                 <>
-                  <Link to="/dashboard" className="text-gray-700 hover:text-black px-3 py-2 rounded-md text-sm font-medium">
+                  <Link to="/dashboard" className="textwhite hover:text-black px-3 py-2 rounded-md text-sm font-medium">
                     Dashboard
                   </Link>
                   <button 
                     onClick={handleLogout} 
-                    className="text-gray-700 hover:text-black px-3 py-2 rounded-md text-sm font-medium"
+                    className="textwhite hover:text-black px-3 py-2 rounded-md text-sm font-medium"
                   >
                     Logout
                   </button>
@@ -121,7 +121,7 @@ export default function ForgotPassword() {
             <div className="pt-2 pb-3 space-y-1">
               <Link 
                 to="/" 
-                className="text-gray-700 hover:bg-gray-50 hover:text-black block px-3 py-2 rounded-md text-base font-medium"
+                className="textwhite hover:bg-gray-50 hover:text-black block px-3 py-2 rounded-md text-base font-medium"
               >
                 Home
               </Link>
@@ -129,13 +129,13 @@ export default function ForgotPassword() {
                 <>
                   <Link 
                     to="/login" 
-                    className="text-gray-700 hover:bg-gray-50 hover:text-black block px-3 py-2 rounded-md text-base font-medium"
+                    className="textwhite hover:bg-gray-50 hover:text-black block px-3 py-2 rounded-md text-base font-medium"
                   >
                     Login
                   </Link>
                   <Link 
                     to="/signup" 
-                    className="text-gray-700 hover:bg-gray-50 hover:text-black block px-3 py-2 rounded-md text-base font-medium"
+                    className="textwhite hover:bg-gray-50 hover:text-black block px-3 py-2 rounded-md text-base font-medium"
                   >
                     Sign Up
                   </Link>
@@ -144,13 +144,13 @@ export default function ForgotPassword() {
                 <>
                   <Link 
                     to="/dashboard" 
-                    className="text-gray-700 hover:bg-gray-50 hover:text-black block px-3 py-2 rounded-md text-base font-medium"
+                    className="textwhite hover:bg-gray-50 hover:text-black block px-3 py-2 rounded-md text-base font-medium"
                   >
                     Dashboard
                   </Link>
                   <button 
                     onClick={handleLogout} 
-                    className="text-gray-700 hover:bg-gray-50 hover:text-black block px-3 py-2 rounded-md text-base font-medium w-full text-left"
+                    className="textwhite hover:bg-gray-50 hover:text-black block px-3 py-2 rounded-md text-base font-medium w-full text-left"
                   >
                     Logout
                   </button>
@@ -161,9 +161,17 @@ export default function ForgotPassword() {
         )}
       </nav>
 
-      {/* Forgot Password Form */}
-      <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-3xl shadow-lg overflow-hidden w-full max-w-md p-10">
+ {/* Forgot Password Form with Background */}
+ <div 
+        className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: "url('/public/foodatreset.jpg')", // Replace with your image path
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          minHeight: 'calc(100vh - 64px)' // Subtract navbar height
+        }}
+      >
+        <div className="bg-white bg-opacity-90 backdrop-blur-sm rounded-3xl shadow-lg overflow-hidden w-full max-w-md p-10">
           <form onSubmit={handleForgotPassword} className="flex flex-col items-center justify-center h-full">
             <h1 className="text-3xl font-bold mb-4">Forgot Password</h1>
             
@@ -171,10 +179,10 @@ export default function ForgotPassword() {
             {message && <div className="text-green-500 text-sm mb-4">{message}</div>}
             
             <div className="flex space-x-3 mb-5">
-              <a href="#" className="border border-gray-300 rounded-lg p-2"><PlusCircleIcon className="w-5 h-5" /></a>
-              <a href="#" className="border border-gray-300 rounded-lg p-2"><UserIcon className="w-5 h-5" /></a>
-              <a href="#" className="border border-gray-300 rounded-lg p-2"><CodeBracketIcon className="w-5 h-5" /></a>
-              <a href="#" className="border border-gray-300 rounded-lg p-2"><LinkIcon className="w-5 h-5" /></a>
+              <a href="#" className="border border-gray-300 rounded-lg p-2 bg-white"><PlusCircleIcon className="w-5 h-5" /></a>
+              <a href="#" className="border border-gray-300 rounded-lg p-2 bg-white"><UserIcon className="w-5 h-5" /></a>
+              <a href="#" className="border border-gray-300 rounded-lg p-2 bg-white"><CodeBracketIcon className="w-5 h-5" /></a>
+              <a href="#" className="border border-gray-300 rounded-lg p-2 bg-white"><LinkIcon className="w-5 h-5" /></a>
             </div>
             
             <span className="text-xs mb-4">Enter your email to reset password</span>
