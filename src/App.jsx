@@ -6,6 +6,8 @@ import authService from './API/authService'
 import Home from './components/Home'
 import BusinessAccount from './Pages/BusinessAccount'
 import ForgotPassword from './components/ForgetPassword'
+import UpdateProfile from './Pages/UpdateProfile'
+import Settings from './Pages/Settings'
 
 
 const AuthContext = createContext(null)
@@ -95,6 +97,18 @@ function App(){
             <protectedRoute>
               <Dashboard />
             </protectedRoute>
+          }
+          />
+          <Route
+          path='UpdateProfile'
+          element={
+            <UpdateProfile />
+          }
+          />
+          <Route 
+          path='Settings'
+          element={
+            <Settings />
           }
           />
           <Route path='/Home' element={

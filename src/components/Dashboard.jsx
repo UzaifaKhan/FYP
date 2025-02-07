@@ -86,11 +86,11 @@ export default function Dashboard() {
     }
 
     const handleUpdateProfile = () => {
-        navigate('/profile-edit')
+        navigate('/UpdateProfile')
     }
 
     const handleChangePassword = () => {
-        navigate('/change-password')
+        navigate('/settings')
     }
 
     const handleOpenSettings = () => {
