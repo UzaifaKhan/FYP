@@ -49,6 +49,19 @@ const restaurantService = {
         } catch (error) {
             throw error.response?.data || { message: 'Failed to validate address' };
         }
+    },
+
+    submitReview: async (reviewData) => {
+        try {
+            const response = await axios.post(
+                `${API_URL}/restaurants/reviews`,
+                reviewData,
+                getHeaders()
+            );
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || {message: 'Failed to submit review'}
+        }
     }
 };
 

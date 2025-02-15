@@ -9,6 +9,7 @@ import ForgotPassword from './components/ForgetPassword'
 import UpdateProfile from './Pages/UpdateProfile'
 import Settings from './Pages/Settings'
 import AddRestaurant from './Pages/AddRestaurant'
+import Restaurant from './Pages/Restaurant'
 
 
 const AuthContext = createContext(null)
@@ -120,6 +121,9 @@ function App(){
           } />
           <Route path='/Home/AddRestaurant' element={
               <AddRestaurant />
+          } />
+          <Route path='Restaurant' element={
+            <Restaurant />
           } />
           <Route path='/' element={<Navigate to='/login' replace />} />
         </Routes>
