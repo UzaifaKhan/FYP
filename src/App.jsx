@@ -8,6 +8,7 @@ import BusinessAccount from './Pages/BusinessAccount'
 import ForgotPassword from './components/ForgetPassword'
 import UpdateProfile from './Pages/UpdateProfile'
 import Settings from './Pages/Settings'
+import AddRestaurant from './Pages/AddRestaurant'
 
 
 const AuthContext = createContext(null)
@@ -116,6 +117,9 @@ function App(){
           } />
           <Route path='/Home/businessAccount' element={
               <BusinessAccount />
+          } />
+          <Route path='/Home/AddRestaurant' element={
+              <AddRestaurant />
           } />
           <Route path='/' element={<Navigate to='/login' replace />} />
         </Routes>

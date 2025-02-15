@@ -395,7 +395,7 @@ export default function Home() {
         <div className='flex flex-col items-center'>
             <img src='restaurant.webp' alt='Your restaurant, delivered' className='mb-4 rounded-lg' />
             <h3 className='text-lg font-bold'>Your restuarant, delivered</h3>
-            <Link to='#' className='text-black underline'>
+            <Link to='/home/AddRestaurant' className='text-black underline'>
                 Add your restaurant
             </Link>
         </div>
