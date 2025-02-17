@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PlusCircleIcon, UserIcon, CodeBracketIcon, LinkIcon } from '@heroicons/react/24/outline';
-import { useAuth } from '../App';
+import { useAuth } from '../App';  // Assuming useAuth contains login and token handling logic
 
 export default function SignIn({ isActive }) {
   const [email, setEmail] = useState('');
@@ -9,34 +9,36 @@ export default function SignIn({ isActive }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login } = useAuth(); // Handle JWT and login logic here
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
+  e.preventDefault();
+  setError('');
+  setLoading(true);
 
-    try {
-      await login({ email, password });
-      navigate('/dashboard');
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    // Send password as PasswordHash
+    await login({ email, PasswordHash: password }); // Use PasswordHash instead of password
+    navigate('/dashboard');
+  } catch (err) {
+    setError(err.message);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleForgotPassword = async () => {
     if (!email) {
-        navigate('/ForgotPassword')
       setError('Please enter your email first');
       return;
     }
 
     try {
       setLoading(true);
-      const { message } = await authService.forgotPassword(email);
-      alert(message); 
+      // Assuming authService.forgotPassword sends the correct email and handles backend response
+      const { message } = await authService.forgotPassword({ email });
+      alert(message);
     } catch (err) {
       setError(err.message);
     } finally {

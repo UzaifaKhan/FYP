@@ -23,10 +23,21 @@ export default function SignUp({ isActive }) {
 
     try {
       setLoading(true);
-      await signup({ name, email, password });
-      navigate('/dashboard');
+      
+      // Create a RegisterRequest object
+      const registerRequest = {
+        Name: name,
+        Email: email,
+        PasswordHash: password // This will be hashed in the backend
+      };
+
+      // Send the RegisterRequest object to the backend
+      await signup(registerRequest);
+
+      // Navigate to login page after successful registration
+      navigate('/login');
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }

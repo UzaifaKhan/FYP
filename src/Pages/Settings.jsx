@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Save, ArrowLeft, Bell, Moon, Globe, Lock, Volume2 } from 'lucide-react';
+import { Save, ArrowLeft, Bell, Lock, Volume2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import settingsService from '../API/settingsService';
-
 
 export default function Settings() {
     const navigate = useNavigate();
@@ -80,12 +79,19 @@ export default function Settings() {
             setError(null);
             setSuccessMessage('');
 
-            // Save each section separately
-            await Promise.all([
-                settingsService.updateNotificationSettings(settings.notifications),
-                settingsService.updatePrivacySettings(settings.privacy),
-                settingsService.updateSoundSettings(settings.sound)
-            ]);
+            const userSettings = {
+                UserId: 1,  // Replace this with the actual UserId
+                EmailNotifications: settings.notifications.email,
+                PushNotifications: settings.notifications.push,
+                Updates: settings.notifications.updates,
+                ProfileVisibility: settings.privacy.profileVisibility,
+                ActivityStatus: settings.privacy.activityStatus,
+                EnableSound: settings.sound.enableSound,
+                Volume: settings.sound.volume
+            };
+
+            // Send the settings to the backend for update
+            await settingsService.updateUserSettings(userSettings);
 
             setSuccessMessage('Settings saved successfully!');
         } catch (err) {
@@ -94,7 +100,7 @@ export default function Settings() {
         } finally {
             setLoading(false);
         }
-    }
+    };
 
     return (
         <div className="min-h-screen bg-gray-100">
@@ -211,15 +217,15 @@ export default function Settings() {
                                     <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                                 </label>
                             </div>
-                            <div className="space-y-2">
+                            <div className="flex items-center justify-between">
                                 <span className="text-gray-700">Volume</span>
                                 <input
                                     type="range"
                                     min="0"
                                     max="100"
                                     value={settings.sound.volume}
-                                    onChange={(e) => handleSoundChange('volume', parseInt(e.target.value))}
-                                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                                    onChange={(e) => handleSoundChange('volume', e.target.value)}
+                                    className="w-32"
                                 />
                             </div>
                         </div>
@@ -231,12 +237,18 @@ export default function Settings() {
                     <button
                         onClick={handleSave}
                         disabled={loading}
-                        className="flex items-center gap-2 bg-black text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50"
+                        className="bg-blue-600 text-white rounded px-6 py-2 flex items-center gap-2 disabled:bg-gray-400"
                     >
-                        <Save className="w-4 h-4" />
-                        {loading ? 'Saving...' : 'Save Changes'}
+                        {loading ? 'Saving...' : <><Save className="w-4 h-4" /> Save Settings</>}
                     </button>
                 </div>
+
+                {/* Success Message */}
+                {successMessage && (
+                    <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mt-4">
+                        {successMessage}
+                    </div>
+                )}
             </main>
         </div>
     );

@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { useState, createContext, useContext, useEffect } from 'react'
-import Dashboard from './components/Dashboard'
+import Dashboard from './Dashboard'
 import LoginSignup from './components/LoginSignup'
 import authService from './API/authService'
 import Home from './components/Home'
@@ -128,6 +128,7 @@ function App(){
           <Route path='/' element={<Navigate to='/login' replace />} />
         </Routes>
       </Router>
+
     </AuthProvider>
   )
 }
