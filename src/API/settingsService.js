@@ -1,14 +1,15 @@
 import axios from 'axios';
+import authService from './authService'; // Import the authService to get the userId
 
-const API_URL = 'http://your-api-url/api';
+const API_URL = 'https://localhost:7099/api';
 
 const getHeaders = () => {
     const token = localStorage.getItem('token');
     return {
         headers: {
             Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        }
+            'Content-Type': 'application/json',
+        },
     };
 };
 
@@ -20,8 +21,13 @@ const handleApiError = (error) => {
 const settingsService = {
     getSettings: async () => {
         try {
+            const userId = authService.getUserIdFromToken();
+            if (!userId) {
+                throw new Error('User is not authenticated');
+            }
+
             const response = await axios.get(
-                `${API_URL}/user/settings`,
+                `${API_URL}/Auth/profile/${userId}`, // Fetch user profile using the userId
                 getHeaders()
             );
             return response.data;
@@ -30,37 +36,16 @@ const settingsService = {
         }
     },
 
-    updateNotificationSettings: async (notificationSettings) => {
+    updateUserSettings: async (userSettings) => {
         try {
-            const response = await axios.put(
-                `${API_URL}/user/settings/notifications`,
-                notificationSettings,
-                getHeaders()
-            );
-            return response.data;
-        } catch (error) {
-            handleApiError(error);
-        }
-    },
+            const userId = authService.getUserIdFromToken();
+            if (!userId) {
+                throw new Error('User is not authenticated');
+            }
 
-    updatePrivacySettings: async (privacySettings) => {
-        try {
             const response = await axios.put(
-                `${API_URL}/user/settings/privacy`,
-                privacySettings,
-                getHeaders()
-            );
-            return response.data;
-        } catch (error) {
-            handleApiError(error);
-        }
-    },
-
-    updateSoundSettings: async (soundSettings) => {
-        try {
-            const response = await axios.put(
-                `${API_URL}/user/settings/sound`,
-                soundSettings,
+                `${API_URL}/Auth/update-settings/${userId}`, // Update user settings using the userId
+                userSettings,
                 getHeaders()
             );
             return response.data;
