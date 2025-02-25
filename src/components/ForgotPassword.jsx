@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import authService from '../API/authService';  // Assuming authService handles the forgot password API request
+import authService from '../API/authService';  // Ensure this path is correct
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
@@ -21,7 +21,7 @@ export default function ForgotPassword() {
 
     try {
       setLoading(true);
-      const response = await authService.forgotPassword({ email }); // Make sure `authService.forgotPassword` matches your backend API
+      const response = await authService.forgotPassword(email);  // Fix: Pass email string, not object
       setMessage(response.message || 'Password reset link sent to your email.');
     } catch (err) {
       setError(err.message || 'Failed to send password reset link.');

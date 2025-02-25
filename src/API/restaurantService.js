@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://your-api-url/api';
+const API_URL = 'https://localhost:7099/api';
 
 const getHeaders = () => {
     const token = localStorage.getItem('token');
@@ -16,7 +16,7 @@ const restaurantService = {
     addRestaurant: async (restaurantData) => {
         try {
             const response = await axios.post(
-                `${API_URL}/restaurants`,
+                `${API_URL}/Business/addBusiness`,
                 restaurantData,
                 getHeaders()
             );
@@ -29,7 +29,7 @@ const restaurantService = {
     getBusinessTypes: async () => {
         try {
             const response = await axios.get(
-                `${API_URL}/restaurants/business-types`,
+                `${API_URL}/Business/getBusinessTypes`,
                 getHeaders()
             );
             return response.data;
@@ -41,8 +41,8 @@ const restaurantService = {
     validateAddress: async (address) => {
         try {
             const response = await axios.post(
-                `${API_URL}/restaurants/validate-address`,
-                { address },
+                `${API_URL}/Business/validateAddress`,
+                { address: address }, // Ensure the payload is an object with an `address` field
                 getHeaders()
             );
             return response.data;
@@ -60,7 +60,7 @@ const restaurantService = {
             );
             return response.data;
         } catch (error) {
-            throw error.response?.data || {message: 'Failed to submit review'}
+            throw error.response?.data || { message: 'Failed to submit review' };
         }
     }
 };

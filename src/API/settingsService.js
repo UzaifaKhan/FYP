@@ -1,58 +1,55 @@
 import axios from 'axios';
-import authService from './authService'; // Import the authService to get the userId
+import authService from './authService';
 
 const API_URL = 'https://localhost:7099/api';
 
-const getHeaders = () => {
-    const token = localStorage.getItem('token');
-    return {
-        headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-        },
-    };
-};
+const getSettings = async () => {
+    const token = authService.getCurrentUser();
+    if (!token) {
+        throw new Error('User is not authenticated');
+    }
 
-const handleApiError = (error) => {
-    const message = error.response?.data?.message || error.message || 'An error occurred';
-    throw new Error(message);
-};
+    const userId = authService.getUserIdFromToken();  // Fetch userId from the token
+    if (!userId) {
+        throw new Error('User ID not found in the token');
+    }
 
-const settingsService = {
-    getSettings: async () => {
-        try {
-            const userId = authService.getUserIdFromToken();
-            if (!userId) {
-                throw new Error('User is not authenticated');
+    try {
+        // Dynamically replace {userId} with actual userId
+        const response = await axios.get(`${API_URL}/Auth/profile/${userId}`, {
+            headers: {
+                Authorization: `Bearer ${token}` // Send token in header
             }
-
-            const response = await axios.get(
-                `${API_URL}/Auth/profile/${userId}`, // Fetch user profile using the userId
-                getHeaders()
-            );
-            return response.data;
-        } catch (error) {
-            handleApiError(error);
-        }
-    },
-
-    updateUserSettings: async (userSettings) => {
-        try {
-            const userId = authService.getUserIdFromToken();
-            if (!userId) {
-                throw new Error('User is not authenticated');
-            }
-
-            const response = await axios.put(
-                `${API_URL}/Auth/update-settings/${userId}`, // Update user settings using the userId
-                userSettings,
-                getHeaders()
-            );
-            return response.data;
-        } catch (error) {
-            handleApiError(error);
-        }
+        });
+        return response.data;
+    } catch (error) {
+        throw new Error('Error fetching settings: ' + error?.response?.data?.message || error.message);
     }
 };
 
-export default settingsService;
+const updateUserSettings = async (userSettings) => {
+    const token = authService.getCurrentUser();
+    if (!token) {
+        throw new Error('User is not authenticated');
+    }
+
+    const userId = authService.getUserIdFromToken(); // Ensure the user ID is fetched from token
+    if (!userId) {
+        throw new Error('User ID not found in the token');
+    }
+
+    try {
+        await axios.put(`${API_URL}/Auth/update-settings`, userSettings, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+    } catch (error) {
+        throw new Error('Error saving settings: ' + error?.response?.data?.message || error.message);
+    }
+};
+
+export default {
+    getSettings,
+    updateUserSettings
+};

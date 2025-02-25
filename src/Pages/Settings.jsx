@@ -2,74 +2,81 @@ import { useEffect, useState } from 'react';
 import { Save, ArrowLeft, Bell, Lock, Volume2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import settingsService from '../API/settingsService';
+import authService from '../API/authService'; // Import authService to check if the user is logged in
 
 export default function Settings() {
     const navigate = useNavigate();
     const [settings, setSettings] = useState({
-        notifications: {
-            email: true,
-            push: true,
-            updates: true
-        },
-        privacy: {
-            profileVisibility: 'public',
-            activityStatus: true
-        },
-        sound: {
-            enableSound: true,
-            volume: 80
-        }
+        userId: null, // Add userId to the state
+        emailNotifications: false,
+        pushNotifications: false,
+        updates: false,
+        profileVisibility: 'public',
+        activityStatus: false,
+        enableSound: false,
+        volume: 50
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [successMessage, setSuccessMessage] = useState('');
 
-    useEffect(() => {
-        const fetchSettings = async () => {
-            try {
-                setLoading(true);
-                const response = await settingsService.getSettings();
-                if (response) {
-                    setSettings(response);
-                }
-            } catch (err) {
-                setError('Failed to load settings. Please try again.');
-                console.error('Error fetching settings:', err);
-            } finally {
-                setLoading(false);
-            }
-        };
+    // Fetch user settings
+    const fetchSettings = async () => {
+        const token = authService.getCurrentUser();
+        if (!token) {
+            navigate('/login'); // Redirect to login if the user is not authenticated
+            return;
+        }
 
+        try {
+            setLoading(true);
+            const response = await settingsService.getSettings();
+            if (response) {
+                setSettings({
+                    userId: response.userId || null,
+                    emailNotifications: response.emailNotifications || false,
+                    pushNotifications: response.pushNotifications || false,
+                    updates: response.updates || false,
+                    profileVisibility: response.profileVisibility || 'public',
+                    activityStatus: response.activityStatus || false,
+                    enableSound: response.enableSound || false,
+                    volume: response.volume || 50
+                });
+            }
+        } catch (err) {
+            if (err.message === 'User is not authenticated') {
+                navigate('/login');
+            } else {
+                setError('Failed to load settings. Please try again.');
+            }
+            console.error('Error fetching settings:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
         fetchSettings();
-    }, []);
+    }, [navigate]); // Only rerun effect if navigate changes
 
     const handleNotificationChange = (key) => {
-        setSettings(prev => ({
+        setSettings((prev) => ({
             ...prev,
-            notifications: {
-                ...prev.notifications,
-                [key]: !prev.notifications[key]
-            }
+            [key]: !prev[key]
         }));
     };
 
     const handlePrivacyChange = (key, value) => {
-        setSettings(prev => ({
+        setSettings((prev) => ({
             ...prev,
-            privacy: {
-                ...prev.privacy,
-                [key]: value
-            }
+            [key]: value
         }));
     };
 
     const handleSoundChange = (key, value) => {
-        setSettings(prev => ({
+        setSettings((prev) => ({
             ...prev,
-            sound: {
-                ...prev.sound,
-                [key]: value
-            }
+            [key]: value
         }));
     };
 
@@ -79,23 +86,34 @@ export default function Settings() {
             setError(null);
             setSuccessMessage('');
 
+            // Check if UserId is available before proceeding
+            if (!settings.userId) {
+                setError('UserId is required.');
+                return;
+            }
+
+            // Construct the settings payload
             const userSettings = {
-                UserId: 1,  // Replace this with the actual UserId
-                EmailNotifications: settings.notifications.email,
-                PushNotifications: settings.notifications.push,
-                Updates: settings.notifications.updates,
-                ProfileVisibility: settings.privacy.profileVisibility,
-                ActivityStatus: settings.privacy.activityStatus,
-                EnableSound: settings.sound.enableSound,
-                Volume: settings.sound.volume
+                UserId: settings.userId,
+                EmailNotifications: settings.emailNotifications,
+                PushNotifications: settings.pushNotifications,
+                Updates: settings.updates,
+                ProfileVisibility: settings.profileVisibility,
+                ActivityStatus: settings.activityStatus,
+                EnableSound: settings.enableSound,
+                Volume: settings.volume
             };
+
+            // Log the payload for debugging
+            console.log('User Settings Payload:', userSettings);
 
             // Send the settings to the backend for update
             await settingsService.updateUserSettings(userSettings);
 
             setSuccessMessage('Settings saved successfully!');
         } catch (err) {
-            setError('Failed to save settings. Please try again.');
+            // Handle backend error
+            setError(err?.response?.data?.message || 'Failed to save settings. Please try again.');
             console.error('Error saving settings:', err);
         } finally {
             setLoading(false);
@@ -138,8 +156,8 @@ export default function Settings() {
                                 <label className="relative inline-flex items-center cursor-pointer">
                                     <input
                                         type="checkbox"
-                                        checked={settings.notifications.email}
-                                        onChange={() => handleNotificationChange('email')}
+                                        checked={settings.emailNotifications || false}
+                                        onChange={() => handleNotificationChange('emailNotifications')}
                                         className="sr-only peer"
                                     />
                                     <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
@@ -150,8 +168,8 @@ export default function Settings() {
                                 <label className="relative inline-flex items-center cursor-pointer">
                                     <input
                                         type="checkbox"
-                                        checked={settings.notifications.push}
-                                        onChange={() => handleNotificationChange('push')}
+                                        checked={settings.pushNotifications || false}
+                                        onChange={() => handleNotificationChange('pushNotifications')}
                                         className="sr-only peer"
                                     />
                                     <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
@@ -172,7 +190,7 @@ export default function Settings() {
                             <div className="flex items-center justify-between">
                                 <span className="text-gray-700">Profile Visibility</span>
                                 <select
-                                    value={settings.privacy.profileVisibility}
+                                    value={settings.profileVisibility || 'public'}
                                     onChange={(e) => handlePrivacyChange('profileVisibility', e.target.value)}
                                     className="border rounded-md px-3 py-2"
                                 >
@@ -186,7 +204,7 @@ export default function Settings() {
                                 <label className="relative inline-flex items-center cursor-pointer">
                                     <input
                                         type="checkbox"
-                                        checked={settings.privacy.activityStatus}
+                                        checked={settings.activityStatus || false}
                                         onChange={(e) => handlePrivacyChange('activityStatus', e.target.checked)}
                                         className="sr-only peer"
                                     />
@@ -210,8 +228,8 @@ export default function Settings() {
                                 <label className="relative inline-flex items-center cursor-pointer">
                                     <input
                                         type="checkbox"
-                                        checked={settings.sound.enableSound}
-                                        onChange={(e) => handleSoundChange('enableSound', e.target.checked)}
+                                        checked={settings.enableSound || false}
+                                        onChange={() => handleSoundChange('enableSound', !settings.enableSound)}
                                         className="sr-only peer"
                                     />
                                     <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
@@ -223,9 +241,9 @@ export default function Settings() {
                                     type="range"
                                     min="0"
                                     max="100"
-                                    value={settings.sound.volume}
-                                    onChange={(e) => handleSoundChange('volume', e.target.value)}
-                                    className="w-32"
+                                    value={settings.volume || 50}
+                                    onChange={(e) => handleSoundChange('volume', parseInt(e.target.value))}
+                                    className="w-full h-2 bg-gray-200 rounded-md"
                                 />
                             </div>
                         </div>
@@ -237,15 +255,14 @@ export default function Settings() {
                     <button
                         onClick={handleSave}
                         disabled={loading}
-                        className="bg-blue-600 text-white rounded px-6 py-2 flex items-center gap-2 disabled:bg-gray-400"
+                        className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-500 disabled:opacity-50"
                     >
-                        {loading ? 'Saving...' : <><Save className="w-4 h-4" /> Save Settings</>}
+                        {loading ? 'Saving...' : 'Save'}
                     </button>
                 </div>
 
-                {/* Success Message */}
                 {successMessage && (
-                    <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mt-4">
+                    <div className="bg-green-100 text-green-700 px-4 py-3 rounded mt-4">
                         {successMessage}
                     </div>
                 )}

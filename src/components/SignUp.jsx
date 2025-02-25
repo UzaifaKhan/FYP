@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PlusCircleIcon, UserIcon, CodeBracketIcon, LinkIcon } from '@heroicons/react/24/outline';
 import { useAuth } from '../App';
@@ -9,8 +9,16 @@ export default function SignUp({ isActive }) {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false); // ✅ Track registration success
   const navigate = useNavigate();
   const { signup } = useAuth();
+
+  // ✅ Handle navigation only after successful signup
+  useEffect(() => {
+    if (success) {
+      navigate('/login'); // Move user to login page
+    }
+  }, [success, navigate]); // Runs when `success` changes
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,14 +36,17 @@ export default function SignUp({ isActive }) {
       const registerRequest = {
         Name: name,
         Email: email,
-        PasswordHash: password // This will be hashed in the backend
+        PasswordHash: password, // This will be hashed in the backend
       };
 
       // Send the RegisterRequest object to the backend
-      await signup(registerRequest);
+      const response = await signup(registerRequest);
 
-      // Navigate to login page after successful registration
-      navigate('/login');
+      if (response?.success) { // Ensure backend response is valid
+        setSuccess(true); // ✅ Set success state, triggers useEffect to navigate
+      } else {
+        setError(response?.message || 'Registration failed. Please try again.');
+      }
     } catch (err) {
       setError(err.message || 'Registration failed. Please try again.');
     } finally {

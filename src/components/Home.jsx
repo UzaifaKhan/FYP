@@ -8,7 +8,8 @@ import { useNavigate } from 'react-router-dom'
 const api = {
   async searchAddress(query){
     try{
-      const response = await fetch(`/api/addresses/search?q=${encodedURIComponent(query)}`)
+      const response = await fetch(`/api/addresses/search?q=${encodeURIComponent(query)}`)
+
       if(!response.ok) throw new Error('Failed to search addresses')
         return await response.json()
     } catch(error){

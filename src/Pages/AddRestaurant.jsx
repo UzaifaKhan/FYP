@@ -1,28 +1,28 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import restaurantService from '../API/restaurantService';
 
 const AddRestaurant = () => {
-  const navigate = useNavigate()
-  const [businessTypes, setBusinessTypes] = useState([])
+  const navigate = useNavigate();
+  const [businessTypes, setBusinessTypes] = useState([]);
   const [formData, setFormData] = useState({
     storeAddress: '',
     floorSuite: '',
     storeName: '',
     brandName: '',
-    businessType: '',
+    businessTypeId: '', // Changed from businessType to businessTypeId
     firstName: '',
     lastName: '',
     email: '',
     phoneNumber: '+92',
-    agreedToPrivacy: false
-  })
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+    agreedToPrivacy: false,
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     fetchBusinessTypes();
-  },[])
+  }, []);
 
   const fetchBusinessTypes = async () => {
     try {
@@ -31,49 +31,73 @@ const AddRestaurant = () => {
     } catch (error) {
       setError('Failed to load business types');
     }
-  }
+  };
 
   const handleInputChange = (e) => {
-    const {name, value, type, checked} = e.target;
-    setFormData(prev => ({
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }))
-  }
+      [name]: type === 'checkbox' ? checked : value,
+    }));
+  };
 
   const validateForm = () => {
-    if (!formData.storeAddress || !formData.storeName || !formData.brandName || 
-      !formData.businessType || !formData.firstName || !formData.lastName || 
-      !formData.email || !formData.phoneNumber || !formData.agreedToPrivacy) {
-    setError('Please fill in all required fields');
-    return false;
-  }
-  return true;
-  }
+    if (
+      !formData.storeAddress ||
+      !formData.storeName ||
+      !formData.brandName ||
+      !formData.businessTypeId || // Changed from businessType to businessTypeId
+      !formData.firstName ||
+      !formData.lastName ||
+      !formData.email ||
+      !formData.phoneNumber ||
+      !formData.agreedToPrivacy
+    ) {
+      setError('Please fill in all required fields');
+      return false;
+    }
+    return true;
+  };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError('');
 
-    if (!validateForm()) return;
+  if (!validateForm()) return;
 
-    setLoading(true);
-    try{
-      await restaurantService.validateAddress(formData.storeAddress);
+  setLoading(true);
+  try {
+    // Validate the address
+    await restaurantService.validateAddress(formData.storeAddress);
 
-      await restaurantService.addRestaurant(formData)
-      navigate('/dashboard')
-    } catch (error){
-      setError(error.message || 'Failed to submit form')
+    // Prepare the data to match the backend model
+    const businessData = {
+      StoreAddress: formData.storeAddress,
+      FloorSuite: formData.floorSuite || null,
+      StoreName: formData.storeName,
+      BrandName: formData.brandName,
+      BusinessTypeId: parseInt(formData.businessTypeId, 10),
+      FirstName: formData.firstName,
+      LastName: formData.lastName,
+      Email: formData.email,
+      PhoneNumber: formData.phoneNumber,
+      AgreedToPrivacy: formData.agreedToPrivacy,
+    };
+
+    // Send the data to the backend
+    await restaurantService.addRestaurant(businessData);
+      navigate('/dashboard');
+    } catch (error) {
+      setError(error.message || 'Failed to submit form');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
-    
-    const handleLogin = () => {
-        navigate('/login')
-    }
+  const handleLogin = () => {
+    navigate('/login');
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       {/* Navigation Bar */}
@@ -99,11 +123,11 @@ const AddRestaurant = () => {
       <div className="flex flex-1">
         {/* Left section with background image */}
         <div className="relative w-1/2 bg-gray-900">
-          <div 
+          <div
             className="absolute inset-0 bg-cover bg-center"
             style={{
               backgroundImage: "url('/AddRestaurant.webp')",
-              backgroundBlend: 'overlay'
+              backgroundBlend: 'overlay',
             }}
           >
             <div className="absolute inset-0 bg-black/30" />
@@ -151,7 +175,7 @@ const AddRestaurant = () => {
 
               <div>
                 <label className="block text-sm font-medium mb-2">Floor / Suite (Optional)</label>
-                <input 
+                <input
                   type="text"
                   name="floorSuite"
                   value={formData.floorSuite}
@@ -162,7 +186,7 @@ const AddRestaurant = () => {
 
               <div>
                 <label className="block text-sm font-medium mb-2">Store name*</label>
-                <input 
+                <input
                   type="text"
                   name="storeName"
                   value={formData.storeName}
@@ -178,7 +202,7 @@ const AddRestaurant = () => {
 
               <div>
                 <label className="block text-sm font-medium mb-2">Brand name*</label>
-                <input 
+                <input
                   type="text"
                   name="brandName"
                   value={formData.brandName}
@@ -195,14 +219,14 @@ const AddRestaurant = () => {
               <div>
                 <label className="block text-sm font-medium mb-2">Business type*</label>
                 <select
-                  name="businessType"
-                  value={formData.businessType}
+                  name="businessTypeId" // Changed from businessType to businessTypeId
+                  value={formData.businessTypeId}
                   onChange={handleInputChange}
                   className="w-full p-3 border rounded-md bg-gray-50"
                   required
                 >
                   <option value="">Select...</option>
-                  {businessTypes.map(type => (
+                  {businessTypes.map((type) => (
                     <option key={type.id} value={type.id}>
                       {type.name}
                     </option>
@@ -213,7 +237,7 @@ const AddRestaurant = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-2">First name*</label>
-                  <input 
+                  <input
                     type="text"
                     name="firstName"
                     value={formData.firstName}
@@ -224,7 +248,7 @@ const AddRestaurant = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-2">Last name*</label>
-                  <input 
+                  <input
                     type="text"
                     name="lastName"
                     value={formData.lastName}
@@ -237,7 +261,7 @@ const AddRestaurant = () => {
 
               <div>
                 <label className="block text-sm font-medium mb-2">Email*</label>
-                <input 
+                <input
                   type="email"
                   name="email"
                   value={formData.email}
@@ -302,17 +326,18 @@ const AddRestaurant = () => {
           </div>
         </div>
       </div>
+
       {/* Why VOC Section */}
       <div className="bg-white py-16 px-8">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-16">Why VOC?</h2>
-          
+
           <div className="grid grid-cols-3 gap-12">
             {/* Deliver your way */}
             <div className="space-y-4">
               <h3 className="text-xl font-semibold">Deliver your way</h3>
               <p className="text-gray-600">
-                Our offerings are flexible so you can customize them to your needs. Get started with your 
+                Our offerings are flexible so you can customize them to your needs. Get started with your
                 delivery people or connect with delivery people through the VOC platform.
               </p>
             </div>
@@ -329,24 +354,25 @@ const AddRestaurant = () => {
             <div className="space-y-4">
               <h3 className="text-xl font-semibold">Connect with customers</h3>
               <p className="text-gray-600">
-                Turn customers into regulars with actionable data insights, respond to reviews or offer a 
+                Turn customers into regulars with actionable data insights, respond to reviews or offer a
                 loyalty program.
               </p>
             </div>
           </div>
         </div>
       </div>
+
       {/* How VOC Works Section */}
       <div className="bg-gray-50 py-16 px-8">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-16">How VOC works for restaurant partners</h2>
-          
+
           <div className="grid grid-cols-3 gap-12">
             {/* Customers Order */}
             <div className="space-y-6">
               <div className="bg-blue-50 rounded-lg p-0 h-64 flex items-center justify-center">
-                <img 
-                  src="/CustomersOrder.svg" 
+                <img
+                  src="/CustomersOrder.svg"
                   alt="Customer ordering food"
                   className="w-full h-full object-contain"
                 />
@@ -360,8 +386,8 @@ const AddRestaurant = () => {
             {/* You Prepare */}
             <div className="space-y-6">
               <div className="bg-green-50 rounded-lg p-0 h-64 flex items-center justify-center">
-                <img 
-                  src="/YouPrepare.svg" 
+                <img
+                  src="/YouPrepare.svg"
                   alt="Restaurant preparing order"
                   className="w-full h-full object-contain"
                 />
@@ -375,8 +401,8 @@ const AddRestaurant = () => {
             {/* Delivery Partners Arrive */}
             <div className="space-y-6">
               <div className="bg-purple-50 rounded-lg p-0 h-64 flex items-center justify-center">
-                <img 
-                  src="/DeliveryPeopleArrive.svg" 
+                <img
+                  src="/DeliveryPeopleArrive.svg"
                   alt="Delivery partner arriving"
                   className="w-full h-full object-contain"
                 />
@@ -389,8 +415,9 @@ const AddRestaurant = () => {
           </div>
         </div>
       </div>
-       {/* Testimonial Section */}
-       <div className="bg-black text-white py-24">
+
+      {/* Testimonial Section */}
+      <div className="bg-black text-white py-24">
         <div className="max-w-7xl mx-auto px-8">
           <div className="grid grid-cols-2 gap-12 items-center">
             {/* Text Content */}
@@ -406,8 +433,8 @@ const AddRestaurant = () => {
 
             {/* Image */}
             <div className="relative">
-              <img 
-                src="/AddRestaurant2.webp" 
+              <img
+                src="/AddRestaurant2.webp"
                 alt="Diana Yin standing in front of a yellow wings mural"
                 className="w-full h-full object-cover rounded-lg"
               />
